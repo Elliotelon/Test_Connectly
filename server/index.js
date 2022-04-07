@@ -1,12 +1,11 @@
 const express = require("express");
-const app = express();
-const port = 5000;
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const config = require("./config/key");
 const { auth } = require("./middleware/auth");
 const { User } = require("./models/User");
 
+const app = express();
 //application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -20,9 +19,8 @@ mongoose
   .then(() => console.log("Connected..."))
   .catch((err) => console.log(err));
 
-app.get("/", (req, res) => res.send("Hello World"));
-
 app.post("/api/users/register", (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
   //회원가입 할때 필요한 정보들을 client에서 가져온다.
 
   //데이터베이스에 넣어준다.
@@ -69,6 +67,7 @@ app.post("/api/users/login", (req, res) => {
 });
 
 app.get("/api/users/auth", auth, (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
   res.status(200).json({
     _id: req.user._id,
     isAdmin: req.user.role === 0 ? false : true,
@@ -82,6 +81,7 @@ app.get("/api/users/auth", auth, (req, res) => {
 });
 
 app.get("/api/users/logout", auth, (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
   User.findOneAndUpdate({ _id: req.user._id }, { token: "" }, (err, user) => {
     if (err) return res.json({ success: false, err });
     return res.status(200).send({
@@ -90,4 +90,5 @@ app.get("/api/users/logout", auth, (req, res) => {
   });
 });
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+const port = 5000;
+app.listen(port);
